@@ -74,26 +74,74 @@ X_test, X_dev, y_test, y_dev = train_test_split(
 
 
 #hyperparameter tuning
-GAMMA =0.1
+# gamma_list = [0.01,0.005,0.001,0.0005,0.0001]
+# c_list = [0.1,0.2,0.5,0.7,1,2,5,7,10]
+
+
+gamma_list = [0.001,0.05,0.00001,0.0009,0.08]
+c_list = [0.2,0.5,0.01,0.9,5,3,2,0.1,0.004]
+
+h_param_comb = [{'gamma':g,'C':c} for g in gamma_list for c in c_list]
+assert len(h_param_comb) == len(gamma_list)*len(c_list)
+GAMMA =0.001
+C = 1.0
 # Create a classifier: a support vector classifier
-clf = svm.SVC()
-hyper_params = {'gamma':GAMMA}
-clf.set_params(**hyper_params)
+best_acc_dev = -1.0
+best_acc_train = -1.0
+best_acc_test = -1.0
+best_model_dev =None
+best_model_train=None
+best_model_test =None
+best_h_params =None
+for cur_h_params in h_param_comb:
+    clf = svm.SVC()
+    hyper_params = cur_h_params
+    clf.set_params(**hyper_params)
 
 
 
-# Learn the digits on the train subset
-clf.fit(X_train, y_train)
+    # Learn the digits on the train subset
+    clf.fit(X_train, y_train)
+    
+    print(cur_h_params)
+    #Predict the value of the digit on the dev subset
+    predicted_dev = clf.predict(X_dev)
+    predicted_train = clf.predict(X_train)
+    predicted_test = clf.predict(X_test)
 
+    cur_acc_dev = metrics.accuracy_score(y_pred=predicted_dev,y_true=y_dev)
+    cur_acc_train = metrics.accuracy_score(y_pred=predicted_train,y_true=y_train)
+    cur_acc_test = metrics.accuracy_score(y_pred=predicted_test,y_true=y_test)
+    if(cur_acc_dev>best_acc_dev):
+        best_acc_dev=cur_acc_dev
+        best_model_dev=clf
+        best_h_params=cur_h_params
+        print("Found new best acc with",str(cur_h_params))
+        print("New best val acc",str(cur_acc_dev))
+    if(cur_acc_train>best_acc_train):
+        best_acc_train=cur_acc_train
+        best_model_train=clf
+        best_h_params=cur_h_params
+        print("Found new best acc with",str(cur_h_params))
+        print("New best val acc",str(cur_acc_train))
+
+    if(cur_acc_test>best_acc_test):
+        best_acc_test=cur_acc_test
+        best_model_test=clf
+        best_h_params=cur_h_params
+        print("Found new best acc with",str(cur_h_params))
+        print("New best val acc",str(cur_acc_test))
 # Predict the value of the digit on the test subset
-predicted = clf.predict(X_test)
+predicted_dev = best_model_dev.predict(X_test)
+predicted_train = best_model_train.predict(X_test)
+predicted_test = best_model_test.predict(X_test)
 
 ###############################################################################
 # Below we visualize the first 4 test samples and show their predicted
 # digit value in the title.
 
 _, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
-for ax, image, prediction in zip(axes, X_test, predicted):
+for ax, image, prediction in zip(axes, X_test, predicted_dev):
     ax.set_axis_off()
     image = image.reshape(8, 8)
     ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
@@ -102,18 +150,33 @@ for ax, image, prediction in zip(axes, X_test, predicted):
 ###############################################################################
 # :func:`~sklearn.metrics.classification_report` builds a text report showing
 # the main classification metrics.
-
+print(cur_h_params)
 print(
-    f"Classification report for classifier {clf}:\n"
-    f"{metrics.classification_report(y_test, predicted)}\n"
+    f"Classification report for classifier -dev{clf}:\n"
+    f"{metrics.classification_report(y_test, predicted_dev)}\n"
 )
+print("Best hyper parameters were",cur_h_params)
 
+print(cur_h_params)
+print(
+    f"Classification report for classifier -train {clf}:\n"
+    f"{metrics.classification_report(y_test, predicted_train)}\n"
+)
+print("Best hyper parameters were",cur_h_params)
+
+print(cur_h_params)
+print(
+    f"Classification report for classifier -test {clf}:\n"
+    f"{metrics.classification_report(y_test, predicted_test)}\n"
+)
+print("Best hyper parameters were",cur_h_params)
+##################################################
 ###############################################################################
-# We can also plot a :ref:`confusion matrix <confusion_matrix>` of the
-# true digit values and the predicted digit values.
+# # We can also plot a :ref:`confusion matrix <confusion_matrix>` of the
+# # true digit values and the predicted digit values.
 
-disp = metrics.ConfusionMatrixDisplay.from_predictions(y_test, predicted)
-disp.figure_.suptitle("Confusion Matrix")
-print(f"Confusion matrix:\n{disp.confusion_matrix}")
+# disp = metrics.ConfusionMatrixDisplay.from_predictions(y_test, predicted)
+# disp.figure_.suptitle("Confusion Matrix")
+# print(f"Confusion matrix:\n{disp.confusion_matrix}")
 
-plt.show()
+# plt.show()
