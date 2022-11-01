@@ -1,0 +1,7 @@
+	Run1	Run2	Run3	Run4	Run5	Mean	Std	
+svm	0.98324	0.99441	0.993	0.97765	0.9882	0.9873	0.011	0.9873+-0.011
+decision tree	0.8435	0.86592	0.84357	0.86592	0.8715	0.8575	0.02	0.8575+-0.02
+
+
+
+Clearly svm model is better than decision tree classifier
