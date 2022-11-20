@@ -1,5 +1,6 @@
 from sklearn import datasets, svm, metrics
 import pdb
+import argparse
 
 from utils import (
     preprocess_digits,
@@ -11,6 +12,14 @@ from utils import (
     tune_and_save,
 )
 from joblib import dump, load
+
+parser = argparse.ArgumentParser(description='Inputs to cmd')
+parser.add_argument('-clf','--clf', help='model name', required=True)
+parser.add_argument('-r','--random_seed', help='Give the random seed value', required=True)
+args = vars(parser.parse_args())
+
+model_name = args['clf']
+random_seed = int(args['random_seed'])
 
 train_frac, dev_frac, test_frac = 0.8, 0.1, 0.1
 assert train_frac + dev_frac + test_frac == 1.0
@@ -35,12 +44,14 @@ del digits
 
 
 x_train, y_train, x_dev, y_dev, x_test, y_test = train_dev_test_split(
-    data, label, train_frac, dev_frac
+    data, label, train_frac, dev_frac,random_seed
 )
 
 # PART: Define the model
 # Create a classifier: a support vector classifier
-clf = svm.SVC()
+#clf = svm.SVC()
+models = {"svm":svm.SVC()}
+clf = models[model_name]
 # define the evaluation metric
 metric = metrics.accuracy_score
 
