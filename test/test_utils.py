@@ -6,7 +6,7 @@ sys.path.append("..")
 
 sys.path.append(".")
 
-from utils import get_all_h_param_comb, tune_and_save
+from utils import get_all_h_param_comb, tune_and_save,train_dev_test_split
 from sklearn import svm, metrics
 
 # test case to check if all the combinations of the hyper parameters are indeed getting created
@@ -101,6 +101,39 @@ def test_predicts_all():
 
     assert set(predicted) == set(y_test)
 
+def train_dev_test_split_verification():
+	X_data = range(10)
+	y_data = range(10)
+
+	for i in range(5):
+		X_train, X_test, y_train, y_test = train_dev_test_split(X_data,y_data, test_size = 0.3,random_state = 2)
+		print(y_test)
+	    
+	for i in range(5):
+		X_train, X_test, y_train, Y_test = train_dev_test_split(X_data,     y_data, test_size = 0.3,random_state = 2)
+		print(Y_test)
+
+	assert set(y_test)==set(Y_test)
+     
+     
+def train_dev_test_split_verification_diffrandomseed():
+    
+	X_data = range(10)
+	y_data = range(10)
+
+	for i in range(5):
+		X_train, X_test, y_train, y_test = train_dev_test_split(X_data,     y_data, test_size = 0.3,random_state = 1) # zero or any other integer
+		print(y_test)
+	    
+	for i in range(5):
+		X_train, X_test, y_train, Y_test = train_dev_test_split(X_data,     y_data, test_size = 0.3,random_state = 2) # zero or any other integer
+		print(Y_test)
+
+	assert set(y_test)!=set(Y_test)
+	    
+	    
+    
+    
 
 # what more test cases should be there
 # irrespective of the changes to the refactored code.
