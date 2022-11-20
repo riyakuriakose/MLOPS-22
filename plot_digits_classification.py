@@ -13,6 +13,9 @@ from utils import (
 )
 from joblib import dump, load
 
+model_path = "./models/"
+model_path_file = "./results/"
+
 parser = argparse.ArgumentParser(description='Inputs to cmd')
 parser.add_argument('-clf','--clf', help='model name', required=True)
 parser.add_argument('-r','--random_seed', help='Give the random seed value', required=True)
@@ -54,10 +57,11 @@ models = {"svm":svm.SVC()}
 clf = models[model_name]
 # define the evaluation metric
 metric = metrics.accuracy_score
+fscore = metrics.f1_score
 
 
 actual_model_path = tune_and_save(
-    clf, x_train, y_train, x_dev, y_dev, metric, h_param_comb, model_path=None
+    clf, x_train, y_train, x_dev, y_dev, metric, h_param_comb,fscore,random_seed, model_path=model_path,model_path_file =model_path_file
 )
 
 

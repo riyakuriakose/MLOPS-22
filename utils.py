@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from joblib import dump
 from sklearn import svm
+import os
 
 
 def get_all_h_param_comb(params):
@@ -79,6 +80,7 @@ def h_param_tuning(h_param_comb, clf, x_train, y_train, x_dev, y_dev, metric):
 
         # 2.b compute the accuracy on the validation set
         cur_metric = metric(y_pred=predicted_dev, y_true=y_dev)
+        
 
         # 3. identify the combination-of-hyper-parameter for which validation set accuracy is the highest.
         if cur_metric > best_metric:
@@ -90,9 +92,10 @@ def h_param_tuning(h_param_comb, clf, x_train, y_train, x_dev, y_dev, metric):
     return best_model, best_metric, best_h_params
 
 
-def tune_and_save(clf, x_train, y_train, x_dev, y_dev, metric, h_param_comb, model_path):
+def tune_and_save(clf, x_train, y_train, x_dev, y_dev, metric, h_param_comb, fscore,random_state,model_path,model_path_file):
+    
     best_model, best_metric, best_h_params = h_param_tuning(
-        h_param_comb, clf, x_train, y_train, x_dev, y_dev, metric
+        h_param_comb, clf, x_train, y_train, x_dev, y_dev, metric,fscore
     )
 
     # save the best_model
@@ -104,7 +107,20 @@ def tune_and_save(clf, x_train, y_train, x_dev, y_dev, metric, h_param_comb, mod
     best_model_name = model_type + "_" + best_param_config + ".joblib"
     if model_path == None:
         model_path = best_model_name
-    dump(best_model, model_path)
+    else:
+        filename = best_model_name
+        model_path = os.path.join(model_path,filename)
+        print(model_path)
+     
+        dump(best_model, model_path)
+    with open(os.path.join(model_path_file,str(clf)+"_"+str(random_state)+".txt"),"w") as f:
+        print(best_metric)
+        print(fscore)
+        line1 = "Best Accuracy was:{}".format(best_metric)
+
+        f.write(line1)
+    
+        
 
     print("Best hyperparameters were:")
     print(best_h_params)
